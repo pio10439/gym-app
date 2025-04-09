@@ -1,7 +1,7 @@
 // MENU GLOWNE
 import React from "react";
 import { StyleSheet,View,Text } from "react-native";
-import { styles } from "../assets/styles";
+
 
 export default function DashboardScreen () {
     return(
@@ -11,3 +11,16 @@ export default function DashboardScreen () {
         </View>
     );
 };
+const styles = StyleSheet.create({
+    container: {
+        alignItems: "center",
+        marginTop: 200,
+
+
+    },
+    title:{
+        textAlign: "center",
+        fontSize: 26,
+        fontWeight: "bold",
+    }
+})

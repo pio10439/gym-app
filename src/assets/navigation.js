@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import { createStackNavigator } from "@react-navigation/stack";
 import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
@@ -7,12 +7,18 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import WorkoutsScreen from "../screens/WorkoutsScreen";
 import ProfileScreen from "../screens/ProfileScreen";
 import DashboardScreen from "../screens/DashboardScreen";
+import AuthScreen from "../screens/AuthScreen";
 import {WorkoutProvider} from '../context/WorkoutContext';
+import { AuthContext, AuthProvider } from "../context/AuthContext";
+
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
 function MainTabs() {
+
+  const {logout} = useContext(AuthContext)
+
   return (
     <Tab.Navigator
       screenOptions= {({ route }) => ({
@@ -34,20 +40,37 @@ function MainTabs() {
       })}
     >
       <Tab.Screen name="Welcome" component={DashboardScreen} />
-      <Tab.Screen name="Workouts" component={WorkoutsScreen} />
+      <Tab.Screen name="Workouts">
+        {() => <WorkoutsScreen onLogout={logout} />}
+      </Tab.Screen>
       <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>
   );
 }
 
-export default function Navigation() {
+function Navigation() {
+
+  const{isLoggedIn, currentUser} = useContext(AuthContext);
+
   return (
-    <WorkoutProvider>
+    <WorkoutProvider currentUser={currentUser}>
       <NavigationContainer>
         <Stack.Navigator screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="Main" component={MainTabs} />
+          {isLoggedIn ? (
+            <Stack.Screen name="Main" component={MainTabs} />
+          ) : (
+            <Stack.Screen name="Auth" component={AuthScreen} />
+          )}
         </Stack.Navigator>
       </NavigationContainer>
     </WorkoutProvider>
   );
+}
+
+export default function AppNavigation() {
+  return(
+    <AuthProvider>
+      <Navigation/>
+    </AuthProvider>
+  )
 }

@@ -4,54 +4,58 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export const WorkoutContext = createContext();
 
-export function WorkoutProvider ({children}) {
-    const[workouts,setWorkouts] = useState([]);
+export function WorkoutProvider ({children,currentUser}) {
+    const[trainings,setTrainings] = useState([]);
 
-    const loadWorkouts = async () => {
+    const loadTrainings = async () => {
+        if(!currentUser) return;
         try{
-            const storedWorkouts = await AsyncStorage.getItem("workouts")
-            if(storedWorkouts){
-                setWorkouts(JSON.parse(storedWorkouts));
-            }
+             const users = JSON.parse(await AsyncStorage.getItem('users')) || {};
+             const userTrainings = users[currentUser]?.trainings || [];
+            setTrainings(userTrainings)
         }catch(error){
-            console.log("Failed to load workouts",error);
+            console.log("Blad w ladowaniu treningow",error);
         }
     }
 
-    const saveWorkouts = async(newWorkout) => {
+    const saveToStorage = async(updatedTrainings) => {
+        if(!currentUser) return;
         try{
-            await AsyncStorage.setItem("workouts",JSON.stringify(newWorkout));
+            const users = JSON.parse( await AsyncStorage.getItem('users')) || {};
+            if(!users[currentUser]){
+                users[currentUser] = {password: '', trainings: []};
+            }
+            users[currentUser].trainings = updatedTrainings;
+            await AsyncStorage.setItem('users',JSON.stringify(users));
+            setTrainings(updatedTrainings)
         }catch(erorr){
-            console.error("Failed to save workouts",erorr);
+            console.error("Blad z zapisem treningu",erorr);
         }
     };
 
-    const addWorkout = (newWorkout) => {
-        const updatedWorkouts = [...workouts,newWorkout];
-        setWorkouts(updatedWorkouts);
-        saveWorkouts(updatedWorkouts);
+    const addTraining = (newTraining) => {
+        const updatedTrainings = [...trainings,newTraining];
+        saveToStorage(updatedTrainings)
     };
 
-    const removeWorkout = (id) => {
-        const updatedWorkouts = workouts.filter((workout) => workout.id !== id);
-        setWorkouts(updatedWorkouts);
-        saveWorkouts(updatedWorkouts);
-    };
-
-    const updateWorkout = (id, newName) => {
-        const updatedWorkouts = workouts.map(workout => 
-            workout.id === id ? {...workout,name: newName} : workout
+    const editTraining = (index, updatedTraining) => {
+        const updatedTrainings = trainings.map((training,i) => 
+            i === index ? updatedTraining : training
         );
-        setWorkouts(updatedWorkouts);
-        saveWorkouts(updatedWorkouts);
+        saveToStorage(updatedTrainings);
+    };
+
+    const deleteTraining = (index) => {
+        const updatedTrainings = trainings.filter((_,i) => i !== index);
+        saveToStorage(updatedTrainings);
     }
 
     useEffect(() => {
-        loadWorkouts();
-    },[])
+        loadTrainings();
+    },[currentUser])
 
     return(
-        <WorkoutContext.Provider value={{workouts, addWorkout, removeWorkout, updateWorkout}}>
+        <WorkoutContext.Provider value={{trainings, addTraining, editTraining, deleteTraining }}>
             {children}
         </WorkoutContext.Provider>
     );

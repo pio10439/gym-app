@@ -1,7 +1,7 @@
 //PROFIL
 import React from "react";
 import { StyleSheet,View,Text } from "react-native";
-import { styles } from "../assets/styles";
+
 
 export default function ProfileScreen () {
     return(
@@ -10,3 +10,15 @@ export default function ProfileScreen () {
         </View>
     );
 };
+const styles = StyleSheet.create({
+        container: {
+            alignItems: "center",
+            marginTop: 200,
+    
+    
+        },
+        title:{
+            fontSize: 26,
+            fontWeight: "bold",
+        }
+    })
