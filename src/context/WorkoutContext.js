@@ -1,6 +1,7 @@
 // LISTA TRENINGOW
 import React, {createContext,useEffect,useState} from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as Location from 'expo-location';
 
 export const WorkoutContext = createContext();
 
@@ -8,20 +9,24 @@ export function WorkoutProvider ({children,currentUser}) {
     const[trainings,setTrainings] = useState([]);
 
     const loadTrainings = async () => {
-        if(!currentUser) return;
+        if(!currentUser){
+            setTrainings([]);
+            return;
+        }
         try{
-             const users = JSON.parse(await AsyncStorage.getItem('users')) || {};
+             const users = JSON.parse(await AsyncStorage.getItem('users') || '{}');
              const userTrainings = users[currentUser]?.trainings || [];
             setTrainings(userTrainings)
         }catch(error){
             console.log("Blad w ladowaniu treningow",error);
+            setTrainings([]);
         }
     }
 
     const saveToStorage = async(updatedTrainings) => {
         if(!currentUser) return;
         try{
-            const users = JSON.parse( await AsyncStorage.getItem('users')) || {};
+            const users = JSON.parse( await AsyncStorage.getItem('users') || '{}');
             if(!users[currentUser]){
                 users[currentUser] = {password: '', trainings: []};
             }
@@ -33,8 +38,26 @@ export function WorkoutProvider ({children,currentUser}) {
         }
     };
 
-    const addTraining = (newTraining) => {
-        const updatedTrainings = [...trainings,newTraining];
+    const addTraining = async (newTraining) => {
+        let location = null;
+        try {
+            let{status} = await Location.requestForegroundPermissionsAsync();
+            if(status === 'granted'){
+                let position = await Location.getCurrentPositionAsync({});
+                location = {
+                    latitude: position.coords.latitude,
+                    longitude: position.coords.longitude,
+                };
+            }
+        } catch (error) {
+            console.error('Blad lokalizacji',error)
+        }
+        const finalTraining = {
+            ...newTraining,
+            data: new Date().toISOString(),
+            location,
+        }
+        const updatedTrainings = [...trainings,finalTraining];
         saveToStorage(updatedTrainings)
     };
 

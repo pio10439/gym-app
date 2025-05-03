@@ -9,6 +9,7 @@ import ProfileScreen from "../screens/ProfileScreen";
 import DashboardScreen from "../screens/DashboardScreen";
 import AuthScreen from "../screens/AuthScreen";
 import {WorkoutProvider} from '../context/WorkoutContext';
+import { UserProvider } from "../context/UserContext";
 import { AuthContext, AuthProvider } from "../context/AuthContext";
 
 
@@ -54,15 +55,17 @@ function Navigation() {
 
   return (
     <WorkoutProvider currentUser={currentUser}>
-      <NavigationContainer>
-        <Stack.Navigator screenOptions={{ headerShown: false }}>
-          {isLoggedIn ? (
-            <Stack.Screen name="Main" component={MainTabs} />
-          ) : (
-            <Stack.Screen name="Auth" component={AuthScreen} />
-          )}
-        </Stack.Navigator>
-      </NavigationContainer>
+      <UserProvider currentUser={currentUser}>
+        <NavigationContainer>
+          <Stack.Navigator screenOptions={{ headerShown: false }}>
+            {isLoggedIn ? (
+              <Stack.Screen name="Main" component={MainTabs} />
+            ) : (
+              <Stack.Screen name="Auth" component={AuthScreen} />
+            )}
+          </Stack.Navigator>
+        </NavigationContainer>
+      </UserProvider>
     </WorkoutProvider>
   );
 }
