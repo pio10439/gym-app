@@ -8,6 +8,7 @@ import WorkoutsScreen from "../screens/WorkoutsScreen";
 import ProfileScreen from "../screens/ProfileScreen";
 import DashboardScreen from "../screens/DashboardScreen";
 import AuthScreen from "../screens/AuthScreen";
+import SettingScreen from "../screens/SettingsScreen";
 import {WorkoutProvider} from '../context/WorkoutContext';
 import { UserProvider } from "../context/UserContext";
 import { AuthContext, AuthProvider } from "../context/AuthContext";
@@ -33,6 +34,9 @@ function MainTabs() {
           } else if (route.name === "Profile") {
             iconName = "account-circle";
           }
+          else if (route.name === "Settings") {
+            iconName = "cog";
+          }
 
           return <MaterialCommunityIcons name={iconName} size={size} color={color} />;
         },
@@ -45,6 +49,7 @@ function MainTabs() {
         {() => <WorkoutsScreen onLogout={logout} />}
       </Tab.Screen>
       <Tab.Screen name="Profile" component={ProfileScreen} />
+      <Tab.Screen name="Settings" component={SettingScreen} />
     </Tab.Navigator>
   );
 }

@@ -1,9 +1,12 @@
 import React from "react";
 import AppNavigation from './src/assets/navigation';
+import { PaperProvider, Provider } from "react-native-paper";
 
 function App () {
   return(
-    <AppNavigation/>
+    <PaperProvider>
+      <AppNavigation/>
+    </PaperProvider>
   )
 }
 

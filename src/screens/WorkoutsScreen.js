@@ -1,7 +1,8 @@
 import React, { useState, useContext } from "react";
-import { View, Text, FlatList, TextInput, Button, StyleSheet, TouchableOpacity, Alert } from "react-native";
+import { View, FlatList, StyleSheet, Alert } from "react-native";
+import { Button, TextInput, Card, IconButton, Text } from "react-native-paper";
 import { WorkoutContext } from '../context/WorkoutContext';
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+
 
 export default function WorkoutsScreen({onLogout}) {
 
@@ -87,62 +88,72 @@ export default function WorkoutsScreen({onLogout}) {
     return (
         <View style={styles.container}>
             <View style={styles.header}>
-                <Text style={styles.title}>Your workouts 💪</Text>
-                <Button title="Logout" onPress={onLogout} color="red" />
+                <Text variant="titleLarge" style={styles.title}>Your workouts 💪</Text>
+                <Button mode="outlined" onPress={onLogout} textColor="red">
+                Logout
+                </Button>
             </View>
-          <Text style={styles.label}>Training title:</Text>
-          <TextInput style={styles.input} 
+          <Text variant="labelLarge" style={styles.label}>Training title:</Text>
+          <TextInput 
+          mode="outlined"
+          style={{marginBottom: 10}} 
           value={trainingTitle} 
           onChangeText={setTrainingTitle} 
-          placeholder="Write training title" />
-          <Text style={styles.label}>Add exercise:</Text>
+          label="Write training title" 
+          />
+          <Text variant="labelLarge" style={styles.label}>Add exercise:</Text>
           <View style={styles.exerciseInputContainer}>
             <TextInput 
-            style={[styles.input, { flex: 1 }]} 
+            mode="outlined"
+            style={{flex: 1}} 
             value={exercise} 
             onChangeText={setExercise} 
-            placeholder="Enter exercise" />
-            <Button 
-            title="Add" 
-            onPress={addExercise} />
+            label="Enter exercise" />
+            <Button mode="contained" onPress={addExercise} style={{marginLeft: 10}} >
+              Add
+            </Button>
           </View>
     
           {error ? <Text style={styles.error}>{error}</Text> : null}
     
           {exercises.length > 0 && (
             <View>
-              <Text>{trainingTitle}:</Text>
+              <Text variant="titleMedium" style={{marginTop: 10}}>{trainingTitle}:</Text>
               {exercises.map((item, index) => (
                 <View key={index} style={styles.exerciseRow}>
                   <Text>- {item}</Text>
-                  <TouchableOpacity onPress={() => removeExercise(index)}>
-                    <Text style={styles.removeText}>Delete</Text>
-                  </TouchableOpacity>
+                  <IconButton icon="delete" iconColor="red" size={20} onPress={() => removeExercise(index)}/>
                 </View>
               ))}
             </View>
           )}
           {editMode && (
-            <Button title="Anuluj edycję" onPress={resetForm} color="gray" />)}
-          <Button title={editMode ? "Save changes" : "Save training"} onPress={saveTraining} />
+            <Button mode="outlined" onPress={resetForm} textColor="gray" style={{marginTop:8}}>
+              Anuluj edycję
+            </Button>)}
+          <Button mode="contained" onPress={saveTraining} style={{marginVertical: 10}}
+          > {editMode ? "Save changes" : "Save training"} 
+          </Button>
     
           <FlatList
             data={trainings}
             renderItem={({ item, index }) => (
-              <View style={styles.trainingItem}>
-                <View style={styles.trainingHeader}>
-                  <Text style={styles.trainingTitle}>{item.title}</Text>
-                  <TouchableOpacity onPress={() => editExistingTraining(index)}>
-                    <Text style={styles.editText}>Edit</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity onPress={() => deleteWholeTraining(index)}>
-                    <Text style={styles.removeText}>Delete</Text>
-                  </TouchableOpacity>
-                </View>
+              <Card style={styles.trainingItem}>
+                <Card.Title 
+                title={item.title}
+                right={()=>(
+                  <View style={{flexDirection: "row"}}>
+                    <IconButton icon="pencil" onPress={() => editExistingTraining(index)}/>
+                    <IconButton icon="delete" iconColor="red" onPress={() => deleteWholeTraining(index)}/>
+                  </View>
+                )}
+                />
+                <Card.Content>
                 {item.exercises.map((exercise, i) => (
                   <Text key={i} style={styles.exerciseItem}>- {exercise}</Text>
                 ))}
-              </View>
+                </Card.Content>
+              </Card>
             )}
             keyExtractor={(item, index) => index.toString()}
           />
@@ -150,19 +161,57 @@ export default function WorkoutsScreen({onLogout}) {
       );
     }
     
-    const styles = StyleSheet.create({
-      title: {fontSize: 22,fontWeight: "bold",marginBottom: 10, textAlign: 'center'},
-      header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
-      container: { flex: 1, padding: 20 },
-      label: { fontSize: 16, marginTop: 10 },
-      input: { borderWidth: 1, borderColor: '#ccc', padding: 8, marginVertical: 5, borderRadius: 4 },
-      exerciseInputContainer: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-      exerciseRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-      removeText: { color: 'red', marginLeft: 10 },
-      trainingItem: { marginTop: 20, padding: 10, backgroundColor: '#f0f0f0', borderRadius: 5 },
-      trainingHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-      trainingTitle: { fontSize: 18, fontWeight: 'bold' },
-      exerciseItem: { marginLeft: 10 },
-      editText: { color: 'blue' },
-      error: { color: 'red', marginVertical: 5 },
-    });
+    const styles = StyleSheet.create({ 
+      container: {
+        flex: 1,
+        padding: 14,
+        backgroundColor: "#f9f9f9"
+      },
+      header: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        marginBottom: 16
+      },
+      title: {
+        fontSize: 28, 
+        fontWeight: 'bold', 
+        marginBottom: 10,
+        color: "#333" 
+
+      },
+      label: {
+        marginTop: 8,
+        marginBottom: 4,
+      },
+      exerciseInputContainer: {
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 8,
+        marginBottom: 8
+      },
+      exerciseRow: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        backgroundColor: "#e8e8e8",
+        padding: 8,
+        borderRadius: 6,
+        marginVertical: 4,
+      },
+      trainingItem: {
+        marginVertical: 8,
+        backgroundColor: '#fff',
+        borderRadius: 10,
+        elevation: 2,
+        paddingBottom: 4,
+      },
+      exerciseItem: {
+        marginLeft: 8,
+        marginVertical: 2,
+      },
+      error: {
+        color: "red",
+        marginVertical: 5,
+      }
+    })

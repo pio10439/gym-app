@@ -63,7 +63,10 @@ export function WorkoutProvider ({children,currentUser}) {
 
     const editTraining = (index, updatedTraining) => {
         const updatedTrainings = trainings.map((training,i) => 
-            i === index ? updatedTraining : training
+            i === index ? 
+                {...updatedTraining, ...training}
+                : training
+
         );
         saveToStorage(updatedTrainings);
     };

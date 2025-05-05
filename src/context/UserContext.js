@@ -12,18 +12,33 @@ export function UserProvider({children, currentUser}) {
         photos: [],
     });
 
-    const loodUserData = async () => {
+    const loadUserData = async () => {
+        if(!currentUser){
+            console.log('Brak currentUser, reset');
+            setUserData({height: '',weight: '',age: '',goal:'',photos: []});
+            return;
+        }
         try {
             const users = JSON.parse(await AsyncStorage.getItem('users') || '{}');
-            const data = users[currentUser]?.userData || {};
-            setUserData({...userData, ...data})
+            const data = users[currentUser]?.userData || {
+                height: '',
+                weight: '',
+                age: '',
+                goal: '',
+                photos: [],
+            };
+            console.log('Dane uzytkownika:',data);
+            setUserData(data);
         } catch (error) {
             console.error('Blad ladowania danych uzytkownika')
         }
     }
 
     const saveUserData = async (newData) => {
-        if(!currentUser) return;
+        if(!currentUser){
+            console.log('Brak currentUser')
+            return;
+        }
         try {
             const users = JSON.parse(await AsyncStorage.getItem('users') || '{}')
             users[currentUser].userData = newData;
@@ -34,17 +49,22 @@ export function UserProvider({children, currentUser}) {
         }
     }
 
-    const addPhoto = async (photoUsr) => {
-        const updatedData = {...userData, photos: [...userData.photos,photoUsr]};
-        saveUserData(updatedData);
+    const addPhoto = async (photoUri) => {
+        const updatedData = {...userData, photos: [...userData.photos,photoUri]};
+        await saveUserData(updatedData);
     }
+    const removePhoto = async (photoUri) => {
+        const updatedPhotos = (userData.photos || []).filter((uri) => uri !== photoUri);
+        const updatedData = {...userData, photos: updatedPhotos};
+        await saveUserData(updatedData)
+    };
 
     useEffect(() => {
-        loodUserData();
+        loadUserData();
     },[currentUser]);
 
     return(
-        <UserContext.Provider value={{userData, saveUserData, addPhoto }}>
+        <UserContext.Provider value={{userData, saveUserData, addPhoto, removePhoto }}>
             {children}
         </UserContext.Provider>
     );
